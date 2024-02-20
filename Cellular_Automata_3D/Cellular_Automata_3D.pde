@@ -1,9 +1,9 @@
 int[][][] matrix; // 3D matrix
 int resolution = 20; // Size of each cube
-int cubeSize = 100; // Size of the entire cube
+int cubeSize = 400; // Size of the entire cube
 
 void setup() {
-  size(400, 400, P3D);
+  size(800, 800, P3D);
   int cols = cubeSize / resolution;
   int rows = cubeSize / resolution;
   int layers = cubeSize / resolution; // Number of layers in the matrix
@@ -21,13 +21,15 @@ void setup() {
 
 void draw() {
   background(255);
-  translate(width / 2, height / 2, -10); // Center the matrix
+  lights();
+  translate(width / 2, height / 2, -cubeSize/2); // Center the matrix
 
   // Rotate the matrix based on time
   float angle = radians(frameCount);
-  rotateX(angle);
-  rotateY(angle);
-  rotateZ(angle);
+  //rotateX(angle);
+  rotateY(angle*2);
+  //rotateZ(angle);
+
 
   // Display the matrix
   for (int i = 0; i < matrix.length; i++) {
@@ -35,20 +37,52 @@ void draw() {
       for (int k = 0; k < matrix[0][0].length; k++) {
         int x = i * resolution - cubeSize / 2;
         int y = j * resolution - cubeSize / 2;
-        int z = k * resolution;
+        int z = k * resolution - cubeSize / 2;
 
         if (matrix[i][j][k] == 1) {
-          fill(0); // Set color to black with alpha transparency
+          //fill(0, 100);
+          fill(50);
         } else {
-          fill(255); // Set color to white with alpha transparency
+          noFill();
+          //fill(255, 10);
         }
 
         // Draw a cube representing the matrix
         pushMatrix();
+        noStroke();
         translate(x, y, z);
         box(resolution);
         popMatrix();
       }
     }
   }
+}
+
+int countNeighbors(int[][][] matrix, int i, int j, int k) {
+  int count = 0;
+  int cols = matrix.length;
+  int rows = matrix[0].length;
+  int layers = matrix[0][0].length;
+  
+  // Loop through the neighbors
+  for (int di = -1; di <= 1; di++) {
+    for (int dj = -1; dj <= 1; dj++) {
+      for (int dk = -1; dk <= 1; dk++) {
+        // Skip the center cell
+        if (di == 0 && dj == 0 && dk == 0) continue;
+        
+        // Calculate neighbor indices
+        int ni = i + di;
+        int nj = j + dj;
+        int nk = k + dk;
+        
+        // Check if the neighbor is within bounds and has a value of 1
+        if (ni >= 0 && ni < cols && nj >= 0 && nj < rows && nk >= 0 && nk < layers && matrix[ni][nj][nk] == 1) {
+          count++;
+        }
+      }
+    }
+  }
+  
+  return count;
 }
