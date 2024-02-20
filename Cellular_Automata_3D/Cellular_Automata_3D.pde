@@ -5,11 +5,17 @@ int cubeSize = 400; // Size of the entire cube
 int cols;
 int rows;
 int layers;
+int countForRules = 0;
+
+int minRangeForLiveCell = 5;
+int maxRangeForLiveCell = 6;
+int minRangeForDeadCell = 4;
+int maxRangeForDeadCell = 4;
 
 void setup() {
   size(800, 800, P3D);
-  frameRate(24);
-  
+  frameRate(75);
+
   int cols = cubeSize / resolution;
   int rows = cubeSize / resolution;
   int layers = cubeSize / resolution; // Number of layers in the matrix
@@ -20,7 +26,7 @@ void setup() {
   for (int i = 0; i < cols; i++) {
     for (int j = 0; j < rows; j++) {
       for (int k = 0; k < layers; k++) {
-        if (int(random(10))<3) {
+        if (int(random(10))<1) {
           matrix[i][j][k] = 1;
         } else {
           matrix[i][j][k] = 0;
@@ -39,7 +45,7 @@ void draw() {
   // Rotate the matrix based on time
   float angle = radians(frameCount);
   //rotateX(angle);
-  rotateY(angle*2);
+  //rotateY(angle*0.2);
   //rotateZ(angle);
 
   //matrixCopy = new int[cols][rows][layers]; // for next frame
@@ -48,20 +54,29 @@ void draw() {
   for (int i = 0; i < matrix.length; i++) {
     for (int j = 0; j < matrix[0].length; j++) {
       for (int k = 0; k < matrix[0][0].length; k++) {
-        //matrixCopy[i][j][k] = matrix[i][j][k];
-        //matrixCopy[i][j][k] = 0;
 
-        // update next gen
-        int neighborCount = countNeighbors(matrix, i, j, k);
-        int currentCellValue = matrix[i][j][k];
+        if (countForRules == 5) {
+          countForRules = 0;
+          // Rules
+          int neighborCount = countNeighbors(matrix, i, j, k);
+          int currentCellValue = matrix[i][j][k];
 
-        if (currentCellValue == 1 && neighborCount == 5 || neighborCount == 6) {
-          matrixCopy[i][j][k] = 1;
-        } else if (currentCellValue == 0 && neighborCount == 4 ) {
-          matrixCopy[i][j][k] = 1;
-        } else {
-          matrixCopy[i][j][k] = 0;
+          if (currentCellValue == 1) {
+            if (neighborCount >= minRangeForLiveCell && neighborCount <= maxRangeForLiveCell) {
+              matrixCopy[i][j][k] = 1;
+            } else {
+              matrixCopy[i][j][k] = 0;
+            }
+          } else { // dead cell
+            if (neighborCount >= minRangeForDeadCell && neighborCount <= maxRangeForDeadCell) {
+              matrixCopy[i][j][k] = 1;
+            } else {
+              matrixCopy[i][j][k] = 0;
+            }
+          }
         }
+
+
 
         // Drawing
         if (matrix[i][j][k] == 1) {
@@ -86,6 +101,7 @@ void draw() {
     }
   }
   matrix = matrixCopy;
+  countForRules++;
 }
 
 int countNeighbors(int[][][] matrix, int i, int j, int k) {
