@@ -1,19 +1,31 @@
 int[][][] matrix; // 3D matrix
+int[][][] matrixCopy;
 int resolution = 20; // Size of each cube
 int cubeSize = 400; // Size of the entire cube
+int cols;
+int rows;
+int layers;
 
 void setup() {
   size(800, 800, P3D);
+  frameRate(24);
+  
   int cols = cubeSize / resolution;
   int rows = cubeSize / resolution;
   int layers = cubeSize / resolution; // Number of layers in the matrix
   matrix = new int[cols][rows][layers];
+  matrixCopy = new int[cols][rows][layers];
 
   // Initialize matrix with random 1s and 0s
   for (int i = 0; i < cols; i++) {
     for (int j = 0; j < rows; j++) {
       for (int k = 0; k < layers; k++) {
-        matrix[i][j][k] = int(random(2));
+        if (int(random(10))<3) {
+          matrix[i][j][k] = 1;
+        } else {
+          matrix[i][j][k] = 0;
+        }
+        matrixCopy[i][j][k] = matrix[i][j][k];
       }
     }
   }
@@ -30,15 +42,28 @@ void draw() {
   rotateY(angle*2);
   //rotateZ(angle);
 
+  //matrixCopy = new int[cols][rows][layers]; // for next frame
 
-  // Display the matrix
+  // Display and update the matrix
   for (int i = 0; i < matrix.length; i++) {
     for (int j = 0; j < matrix[0].length; j++) {
       for (int k = 0; k < matrix[0][0].length; k++) {
-        int x = i * resolution - cubeSize / 2;
-        int y = j * resolution - cubeSize / 2;
-        int z = k * resolution - cubeSize / 2;
+        //matrixCopy[i][j][k] = matrix[i][j][k];
+        //matrixCopy[i][j][k] = 0;
 
+        // update next gen
+        int neighborCount = countNeighbors(matrix, i, j, k);
+        int currentCellValue = matrix[i][j][k];
+
+        if (currentCellValue == 1 && neighborCount == 5 || neighborCount == 6) {
+          matrixCopy[i][j][k] = 1;
+        } else if (currentCellValue == 0 && neighborCount == 4 ) {
+          matrixCopy[i][j][k] = 1;
+        } else {
+          matrixCopy[i][j][k] = 0;
+        }
+
+        // Drawing
         if (matrix[i][j][k] == 1) {
           //fill(0, 100);
           fill(50);
@@ -46,6 +71,10 @@ void draw() {
           noFill();
           //fill(255, 10);
         }
+
+        int x = i * resolution - cubeSize / 2;
+        int y = j * resolution - cubeSize / 2;
+        int z = k * resolution - cubeSize / 2;
 
         // Draw a cube representing the matrix
         pushMatrix();
@@ -56,6 +85,7 @@ void draw() {
       }
     }
   }
+  matrix = matrixCopy;
 }
 
 int countNeighbors(int[][][] matrix, int i, int j, int k) {
@@ -63,26 +93,30 @@ int countNeighbors(int[][][] matrix, int i, int j, int k) {
   int cols = matrix.length;
   int rows = matrix[0].length;
   int layers = matrix[0][0].length;
-  
+
   // Loop through the neighbors
   for (int di = -1; di <= 1; di++) {
     for (int dj = -1; dj <= 1; dj++) {
       for (int dk = -1; dk <= 1; dk++) {
         // Skip the center cell
         if (di == 0 && dj == 0 && dk == 0) continue;
-        
+
         // Calculate neighbor indices
         int ni = i + di;
         int nj = j + dj;
         int nk = k + dk;
-        
+
         // Check if the neighbor is within bounds and has a value of 1
-        if (ni >= 0 && ni < cols && nj >= 0 && nj < rows && nk >= 0 && nk < layers && matrix[ni][nj][nk] == 1) {
+        if (ni >= 0 && ni < cols
+          && nj >= 0
+          && nj < rows
+          && nk >= 0 && nk < layers
+          && matrix[ni][nj][nk] == 1) {
           count++;
         }
       }
     }
   }
-  
+
   return count;
 }
