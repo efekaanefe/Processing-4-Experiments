@@ -5,12 +5,13 @@ int cubeSize = 400; // Size of the entire cube
 int cols;
 int rows;
 int layers;
+int countLimit = 10; // apply rules every 5 frames
 int countForRules = 0;
 
-int minRangeForLiveCell = 5;
-int maxRangeForLiveCell = 6;
+int minRangeForLiveCell = 4; // defines the zone a cell lives
+int maxRangeForLiveCell = 4;
 int minRangeForDeadCell = 4;
-int maxRangeForDeadCell = 4;
+int maxRangeForDeadCell = 8;
 
 void setup() {
   size(800, 800, P3D);
@@ -29,7 +30,7 @@ void setup() {
         if (int(random(10))<1) {
           matrix[i][j][k] = 1;
         } else {
-          matrix[i][j][k] = 0;
+          matrix[i][j][k] = 1;
         }
         matrixCopy[i][j][k] = matrix[i][j][k];
       }
@@ -45,7 +46,7 @@ void draw() {
   // Rotate the matrix based on time
   float angle = radians(frameCount);
   //rotateX(angle);
-  //rotateY(angle*0.2);
+  rotateY(angle*0.2);
   //rotateZ(angle);
 
   //matrixCopy = new int[cols][rows][layers]; // for next frame
@@ -54,13 +55,12 @@ void draw() {
   for (int i = 0; i < matrix.length; i++) {
     for (int j = 0; j < matrix[0].length; j++) {
       for (int k = 0; k < matrix[0][0].length; k++) {
+        matrixCopy[i][j][k] = matrix[i][j][k];
 
-        if (countForRules == 5) {
-          countForRules = 0;
+        if (countForRules == countLimit) {
           // Rules
           int neighborCount = countNeighbors(matrix, i, j, k);
           int currentCellValue = matrix[i][j][k];
-
           if (currentCellValue == 1) {
             if (neighborCount >= minRangeForLiveCell && neighborCount <= maxRangeForLiveCell) {
               matrixCopy[i][j][k] = 1;
@@ -75,8 +75,6 @@ void draw() {
             }
           }
         }
-
-
 
         // Drawing
         if (matrix[i][j][k] == 1) {
@@ -101,6 +99,9 @@ void draw() {
     }
   }
   matrix = matrixCopy;
+  if (countForRules == countLimit) {
+    countForRules = 0;
+  }
   countForRules++;
 }
 
