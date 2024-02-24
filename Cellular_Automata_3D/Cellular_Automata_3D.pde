@@ -2,24 +2,26 @@ int[][][] matrix; // 3D matrix
 int[][][] matrixCopy;
 int resolution = 20; // Size of each cube
 int cubeSize = 400; // Size of the entire cube
-int cols;
-int rows;
-int layers;
-int countLimit = 10; // apply rules every 5 frames
+
+int cols = cubeSize / resolution;
+int rows = cubeSize / resolution;
+int layers = cubeSize / resolution;
+//int cols;
+//int rows;
+//int layers;
+int countLimit = 75; // apply rules for n frames
 int countForRules = 0;
 
-int minRangeForLiveCell = 4; // defines the zone a cell lives
-int maxRangeForLiveCell = 4;
-int minRangeForDeadCell = 4;
-int maxRangeForDeadCell = 8;
+int minRangeForLiveCell = 1; // defines the zone a cell lives
+int maxRangeForLiveCell = 10;
+int minRangeForDeadCell = 1;
+int maxRangeForDeadCell = 10;
 
 void setup() {
   size(800, 800, P3D);
   frameRate(75);
 
-  int cols = cubeSize / resolution;
-  int rows = cubeSize / resolution;
-  int layers = cubeSize / resolution; // Number of layers in the matrix
+   // Number of layers in the matrix
   matrix = new int[cols][rows][layers];
   matrixCopy = new int[cols][rows][layers];
 
@@ -43,7 +45,6 @@ void draw() {
   lights();
   translate(width / 2, height / 2, -cubeSize/2); // Center the matrix
 
-  // Rotate the matrix based on time
   float angle = radians(frameCount);
   //rotateX(angle);
   rotateY(angle*0.2);
@@ -55,8 +56,7 @@ void draw() {
   for (int i = 0; i < matrix.length; i++) {
     for (int j = 0; j < matrix[0].length; j++) {
       for (int k = 0; k < matrix[0][0].length; k++) {
-        matrixCopy[i][j][k] = matrix[i][j][k];
-
+        //matrixCopy[i][j][k] = matrix[i][j][k];
         if (countForRules == countLimit) {
           // Rules
           int neighborCount = countNeighbors(matrix, i, j, k);
@@ -107,9 +107,6 @@ void draw() {
 
 int countNeighbors(int[][][] matrix, int i, int j, int k) {
   int count = 0;
-  int cols = matrix.length;
-  int rows = matrix[0].length;
-  int layers = matrix[0][0].length;
 
   // Loop through the neighbors
   for (int di = -1; di <= 1; di++) {
