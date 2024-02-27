@@ -7,6 +7,7 @@ FFT fft;
 
 int numGroups = 50;
 float rectSpacing = 0;
+boolean isPaused = false;
 
 float[] groupAverages;
 
@@ -28,18 +29,19 @@ void draw() {
 
   int bandsPerGroup = fft.specSize() / numGroups;
 
-  for (int i = 0; i < numGroups; i++) {
-    float sum = 0;
-    int start = i * bandsPerGroup;
-    int end = (i + 1) * bandsPerGroup;
+  if (!isPaused) {
+    for (int i = 0; i < numGroups; i++) {
+      float sum = 0;
+      int start = i * bandsPerGroup;
+      int end = (i + 1) * bandsPerGroup;
 
-    for (int j = start; j < end; j++) {
-      sum += fft.getBand(j);
+      for (int j = start; j < end; j++) {
+        sum += fft.getBand(j);
+      }
+
+      groupAverages[i] = sum / bandsPerGroup;
     }
-
-    groupAverages[i] = sum / bandsPerGroup;
   }
-
   float rectWidth = width/2 / numGroups;
   float rectHeightScale = height / 8;
   float totalRectWidth = numGroups * rectWidth + (numGroups - 1) * rectSpacing;
@@ -52,5 +54,16 @@ void draw() {
     float x = startX + i * (rectWidth + rectSpacing);
     float y = height / 2 - groupAverages[i] * rectHeightScale / 2;
     rect(x, y, rectWidth, groupAverages[i] * rectHeightScale);
+  }
+}
+
+void keyPressed() {
+  if (key == ' ') { // Space bar to toggle pause/start
+    if (isPaused) {
+      player.play();
+    } else {
+      player.pause();
+    }
+    isPaused = !isPaused; // Toggle the state
   }
 }
