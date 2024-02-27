@@ -6,7 +6,7 @@ AudioPlayer player;
 FFT fft;
 
 int numGroups = 50;
-float rectSpacing = 4;
+float rectSpacing = 0;
 
 float[] groupAverages;
 
@@ -46,9 +46,9 @@ void draw() {
   float startX = (width - totalRectWidth) / 2;
 
   fill(150, 0, 0); // bar color
-  strokeWeight(3); 
+  strokeWeight(3);
 
-  for (int i = 1; i < numGroups; i++) { // index 1 is usually too high, cheating...
+  for (int i = 1; i < numGroups; i++) { // index 0 is usually too high, cheating...
     float x = startX + i * (rectWidth + rectSpacing);
     float y = height / 2 - groupAverages[i] * rectHeightScale / 2;
     rect(x, y, rectWidth, groupAverages[i] * rectHeightScale);
